@@ -1,0 +1,94 @@
+---
+title: "NCAA Basketball Coaches Salary Data 2013"
+author: "Sumedh Deepak Patkar"
+date: "2023-02-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+
+### Summary 🏀
+
+The National Collegiate Athletic Association (NCAA) published in 2013 the Salary data of Men's basketball team coaches. The excel sheet can be found on this [**link**](https://github.com/Sumedh-Patkar/ST516/blob/main/data/1_2013_NCAA_basketball_coaches_salaries.xls?raw=true). 
+
+The sheet contains salaries paid to the coaches of 62 teams in a recent NCAA men's Division 1 basketball tournament. We consider these 62 salaries as *sample data* from the population of 346 NCAA Division 1 Men's basketball coaches in the year the tournament was held.
+
+In this RMarkdown sheet, we will load, visualize, summarize the data. We will then calculate a **98% confidence interval** for the coach salaries of the population.
+
+---
+
+### **Loading the data 📁**
+
+
+```{r message = FALSE}
+library("dplyr")
+library("readxl")
+library("ggplot2")
+library("scales")
+
+# Set the working directory to code directory
+# You may need to change this variable if you try running this code on your machine
+current_working_dir = "~/Development/ST516/1.NC_AA_Basketball_Coaches_Salaries"
+setwd(current_working_dir)
+
+# Read the excel file using readxl package function 'read_excel()'
+salaries_xl <- readxl::read_excel("../data/1_2013_NCAA_basketball_coaches_salaries.xls", sheet = 1)
+
+salaries_xl <- salaries_xl %>%
+  rename(athletic_conference = CONF, school=SCHOOL, head_coach = `HEAD COACH`, school_pay = `SCHOOL PAY`,
+         other_pay = `OTHER PAY`, total_pay = `TOTAL PAY`, max_bonus = `MAX BONUS`)
+```
+
+---
+
+### **Visualizing the data 📈 📊 📉**
+
+#### **Tabular view (First 6 rows only)**
+
+```{r message=FALSE}
+#Tabular representation of data
+knitr::kable(head(salaries_xl))
+
+```
+
+#### **Summary of the data**
+
+```{r message=FALSE}
+# We skip the categorical attributes here. We will summarize some of them graphically below.
+salaries_xl %>%
+  dplyr::select(-'RANK', -'head_coach',-'school', -'athletic_conference') %>%
+  summary() %>% 
+  knitr::kable()
+```
+
+### **Graphical summary views**
+##### **1. Representation of teams from various athletic conferences**
+
+
+Following chart shows the number of teams belonging to various [athletic conferences](https://en.wikipedia.org/wiki/List_of_NCAA_conferences)
+
+```{r message=FALSE}
+
+ggplot(data = salaries_xl) + 
+  geom_bar(mapping = aes(y = athletic_conference))
+
+
+```
+
+##### **2. Histogram of Total Pay**
+
+Following chart shows the histogram of the total pay column
+
+```{r message=FALSE}
+
+ggplot(data = salaries_xl) +
+  geom_histogram(mapping = aes(x = total_pay), colour="black", fill="white") + 
+  scale_x_continuous(labels = comma)
+
+```
+
+Notice the outlier in the Total Pay.
